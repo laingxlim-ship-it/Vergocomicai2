@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vergocomic2.0 – AI Retro Cyberpunk Manga Creator</title>
+<meta name="description" content="Type a story. Get a fully drawn, fully lettered comic page in 80s retro manga cyberpunk style.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0a1a; --panel:#14122b; --line:#2b2760; --ink:#f3f0ff; --dim:#a29fc8;
+  --pink:#ff2bd6; --cyan:#19e3ff; --yellow:#ffd23f;
+  --sans:'Space Grotesk',system-ui,sans-serif; --mono:'Space Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.6 var(--sans);
+  background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px);}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--yellow);outline-offset:3px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+section{padding:72px 0}
+h1,h2,h3{line-height:1;letter-spacing:-.02em}
+
+/* nav */
+nav{display:flex;justify-content:space-between;align-items:center;padding:16px 0}
+.logo{font:700 14px var(--mono);letter-spacing:.04em;text-decoration:none}
+.logo b{color:var(--cyan)}
+.pill{background:var(--yellow);color:#000;font:700 12px var(--mono);padding:6px 12px;border:2px solid #000;text-decoration:none;box-shadow:3px 3px 0 var(--pink)}
+
+/* chromatic headline */
+.glitch{font-weight:700;text-transform:uppercase;color:var(--ink);
+  text-shadow:-4px 0 var(--cyan),4px 0 var(--pink);}
+.hero h1{font-size:clamp(48px,11vw,112px);margin:18px 0 22px}
+.hero p{max-width:520px;color:var(--dim);font-size:18px}
+.tag{font:400 12px var(--mono);color:var(--cyan)}
+.btns{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.btn{font:700 14px var(--mono);padding:14px 22px;border:2px solid var(--pink);text-decoration:none;cursor:pointer;background:transparent;color:var(--ink)}
+.btn.main{background:var(--pink);color:#fff;box-shadow:4px 4px 0 var(--cyan)}
+.btn:hover{transform:translate(-1px,-1px)}
+.btn:disabled{opacity:.5;cursor:wait;transform:none}
+
+/* steps */
+h2{font-size:clamp(30px,6vw,52px);margin-bottom:28px;text-transform:uppercase}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;list-style:none;padding:0;counter-reset:s}
+.steps li{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--cyan);padding:20px;counter-increment:s}
+.steps li::before{content:"0" counter(s);float:right;font:700 13px var(--mono);color:var(--pink)}
+.steps h3{font-size:18px;margin-bottom:8px;color:var(--cyan)}
+.steps p{color:var(--dim);font-size:15px}
+
+/* gallery */
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+.frame{position:relative;aspect-ratio:3/4;border:4px solid #000;outline:2px solid var(--pink);overflow:hidden}
+.frame.a{background:linear-gradient(160deg,#2a0a4a,#ff2bd6 55%,#19e3ff)}
+.frame.b{background:linear-gradient(200deg,#ff7a1a,#7a1450 60%,#0b0a1a)}
+.frame.c{background:linear-gradient(20deg,#031a2e,#19e3ff 70%,#1c0b3d)}
+.frame::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 2px,transparent 2px 4px)}
+.bubble{position:absolute;z-index:2;background:#fff;color:#000;border:2px solid #000;border-radius:14px;padding:8px 12px;font:700 13px/1.3 var(--sans);max-width:70%}
+.sfx{position:absolute;z-index:2;font:700 34px var(--sans);color:var(--yellow);text-shadow:3px 3px 0 #000,-2px -2px 0 var(--pink);transform:rotate(-8deg)}
+.note{margin-top:14px;color:var(--dim);font-size:14px}
+
+/* studio */
+.terminal{background:var(--panel);border:2px solid var(--line);box-shadow:8px 8px 0 var(--pink);padding:clamp(18px,4vw,32px)}
+.terminal h3{font:400 13px var(--mono);color:var(--cyan);margin-bottom:20px}
+label,.lbl{display:block;font:700 12px var(--mono);margin:18px 0 8px;color:var(--yellow)}
+.row{display:flex;justify-content:space-between;align-items:center}
+.row button{background:none;border:0;color:var(--cyan);font:400 12px var(--mono);cursor:pointer;text-decoration:underline}
+textarea{width:100%;min-height:96px;background:#0b0a1a;color:var(--ink);border:2px solid var(--line);padding:12px;font:400 15px/1.5 var(--sans);resize:vertical}
+textarea:focus{border-color:var(--cyan)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.opt{position:relative}
+.opt input{position:absolute;opacity:0;inset:0;cursor:pointer}
+.opt span{display:block;height:100%;padding:12px;border:2px solid var(--line);background:#0b0a1a}
+.opt b{display:block;font-size:15px}
+.opt small{color:var(--dim);font-size:13px}
+.opt input:checked+span{border-color:var(--pink);background:#2a0f3d}
+.opt input:focus-visible+span{outline:3px solid var(--yellow)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips .opt span{padding:8px 14px;font:400 13px var(--mono)}
+input[type=range]{width:100%;accent-color:var(--pink)}
+.go{margin-top:24px;width:100%}
+
+/* output */
+#out{margin-top:36px;border:2px dashed var(--line);padding:28px;text-align:center;color:var(--dim)}
+#out.ready{border:0;padding:0;text-align:left}
+#out strong{display:block;color:var(--ink);font-size:20px;margin-bottom:6px}
+.page{display:grid;gap:10px;background:#fff;padding:10px;max-width:560px;margin:0 auto}
+.page .p{position:relative;min-height:200px;border:3px solid #000;overflow:hidden;display:flex;align-items:flex-end;padding:10px}
+.p img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.p .cap{position:relative;z-index:2;background:var(--yellow);color:#000;border:2px solid #000;font:700 12px var(--mono);padding:4px 8px;margin-bottom:auto;align-self:flex-start}
+.p .line{position:relative;z-index:2;background:#fff;color:#000;border:2px solid #000;border-radius:14px;padding:8px 12px;font:700 14px/1.3 var(--sans);width:100%}
+.p .line[contenteditable]:focus{outline:3px solid var(--pink)}
+.actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:18px}
+.err{color:#ff8a8a}
+
+footer{border-top:1px solid var(--line);padding:24px 0;font:400 12px var(--mono);color:var(--dim);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
+@media (max-width:520px){section{padding:52px 0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a class="logo" href="#top">VERGO<b>COMIC2.0</b></a>
+    <a class="pill" href="#studio">OPEN STUDIO</a>
+  </nav>
+
+  <header class="hero" id="top">
+    <p class="tag">▶ PLAY // AI COMIC STUDIO · EST. 1988</p>
+    <h1 class="glitch">Vergo<br>Comic 2.0</h1>
+    <p>Type a story. Get a fully drawn, fully lettered comic page in 80s retro manga cyberpunk style: neon, chrome, rain, and all.</p>
+    <div class="btns">
+      <a class="btn main" href="#studio">CREATE YOUR COMIC</a>
+      <a class="btn" href="#how">HOW IT WORKS</a>
+    </div>
+  </header>
+
+  <section id="how">
+    <h2 class="glitch">From pitch to page in one take</h2>
+    <ol class="steps">
+      <li><h3>Pitch it</h3><p>Drop a one-line premise. The AI writers room turns it into a paced script with a cast, captions, and dialogue.</p></li>
+      <li><h3>Ink it</h3><p>Every panel is painted in late-80s cel-anime style, with neon rain, chrome, halftone, VHS grain, and consistent characters.</p></li>
+      <li><h3>Letter it</h3><p>Speech bubbles, shouts, narration boxes, and SFX are laid out for you. Edit any line and the page updates live.</p></li>
+      <li><h3>Print it</h3><p>Download the finished page as a high-res PNG, ready to post, print, or zine-up.</p></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2 class="glitch">Straight off the VHS tape</h2>
+    <div class="gallery">
+      <div class="frame a"><div class="bubble" style="left:10px;bottom:12px">Third rain this week. Same as the last case.</div></div>
+      <div class="frame b"><div class="sfx" style="left:14px;bottom:22px">KRAAAKOOM</div></div>
+      <div class="frame c"><div class="bubble" style="right:10px;bottom:12px">I'm in. Their firewall is pure 1987.</div></div>
+    </div>
+    <p class="note">Sample layout. Replace these frames with real panels from your generator.</p>
+  </section>
+
+  <section id="studio">
+    <h2 class="glitch">Make a comic</h2>
+    <p style="color:var(--dim);margin:-8px 0 24px;max-width:520px">One premise in, one finished page out. Redraw any panel you don't love and rewrite any line before you download.</p>
+
+    <form class="terminal" id="form" novalidate>
+      <h3>// STORY TERMINAL</h3>
+
+      <div class="row"><label for="premise" style="margin:0">YOUR PREMISE</label><button type="button" id="surprise">Surprise me</button></div>
+      <textarea id="premise" placeholder="A runaway android steals a cop's hoverbike to save her sister from a memory-wipe clinic…"></textarea>
+
+      <span class="lbl">VISUAL STYLE</span>
+      <div class="opts" role="radiogroup" aria-label="Visual style">
+        <label class="opt"><input type="radio" name="style" value="Neo-Tokyo Night" checked><span><b>Neo-Tokyo Night</b><small>Rain, neon kanji, chrome bikes</small></span></label>
+        <label class="opt"><input type="radio" name="style" value="Mecha Dusk"><span><b>Mecha Dusk</b><small>Giant robots, burnt-orange skies</small></span></label>
+        <label class="opt"><input type="radio" name="style" value="OAV Noir"><span><b>OAV Noir</b><small>Trench coats, smoke, hard shadows</small></span></label>
+        <label class="opt"><input type="radio" name="style" value="Synth Arcade"><span><b>Synth Arcade</b><small>CRT glow, grids, pastel neon</small></span></label>
+      </div>
+
+      <span class="lbl">TONE</span>
+      <div class="chips" role="radiogroup" aria-label="Tone">
+        <label class="opt"><input type="radio" name="tone" value="Dramatic" checked><span>Dramatic</span></label>
+        <label class="opt"><input type="radio" name="tone" value="Action"><span>Action</span></label>
+        <label class="opt"><input type="radio" name="tone" value="Noir"><span>Noir</span></label>
+        <label class="opt"><input type="radio" name="tone" value="Comedic"><span>Comedic</span></label>
+        <label class="opt"><input type="radio" name="tone" value="Melancholy"><span>Melancholy</span></label>
+      </div>
+
+      <label for="panels">PANELS: <span id="pcount">4</span></label>
+      <input type="range" id="panels" min="2" max="6" value="4">
+
+      <button class="btn main go" id="go" type="submit">CREATE COMIC</button>
+      <p class="note">Script takes a few seconds; each panel is hand-inked by AI in about 15–30 seconds.</p>
+    </form>
+
+    <div id="out" aria-live="polite">
+      <strong>Your page prints here</strong>
+      Write a premise, pick a style, and hit create. Vergocomic2.0 writes the script, designs the cast, draws every panel, and letters the dialogue.
+    </div>
+  </section>
+
+  <footer>
+    <span>VERGOCOMIC2.0 REWIND · PLAY · CREATE</span>
+    <span>Powered by Netlify</span>
+  </footer>
+</div>
+
+<script>
+/* ---------- CONFIG ----------
+   Point this at your serverless function (Netlify Functions). It receives
+   { premise, style, tone, panels } and must return:
+   { panels: [ { image: "https://… or data:…", caption: "…", dialogue: "…" } ] }
+   If the call fails, the page falls back to demo mode so the UI still works. */
+const API_URL = '/.netlify/functions/generate';
+
+const $ = s => document.querySelector(s);
+const out = $('#out'), go = $('#go');
+const seeds = [
+  "A runaway android steals a cop's hoverbike to save her sister from a memory-wipe clinic.",
+  "A ramen cook in Neo-Tokyo discovers her noodle broth carries a hacker's stolen code.",
+  "Two rival couriers race a rooftop highway to deliver a package neither is allowed to open.",
+  "A retired mecha pilot hears his old machine calling to him from a scrapyard in the rain."
+];
+const demoColors = [
+  ['#2a0a4a','#ff2bd6','#19e3ff'],['#ff7a1a','#7a1450','#0b0a1a'],
+  ['#031a2e','#19e3ff','#1c0b3d'],['#1c0b3d','#ffd23f','#ff2bd6'],
+  ['#0b0a1a','#ff2bd6','#ff7a1a'],['#031a2e','#ffd23f','#7a1450']
+];
+
+$('#panels').addEventListener('input', e => $('#pcount').textContent = e.target.value);
+$('#surprise').addEventListener('click', () => {
+  $('#premise').value = seeds[Math.floor(Math.random()*seeds.length)];
+});
+
+$('#form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const premise = $('#premise').value.trim();
+  if (!premise) { out.className=''; out.innerHTML = '<span class="err">Write a premise first, or tap "Surprise me".</span>'; $('#premise').focus(); return; }
+  const body = {
+    premise,
+    style: document.querySelector('[name=style]:checked').value,
+    tone: document.querySelector('[name=tone]:checked').value,
+    panels: +$('#panels').value
+  };
+  go.disabled = true; go.textContent = 'PRINTING…';
+  out.className = ''; out.innerHTML = '<strong>Writing the script…</strong>Panels take 15–30 seconds each.';
+  let data, demo = false;
+  try {
+    const r = await fetch(API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+    if (!r.ok) throw new Error(r.status);
+    data = await r.json();
+  } catch (err) {
+    demo = true; data = makeDemo(body);
+  }
+  render(data.panels, demo);
+  go.disabled = false; go.textContent = 'CREATE COMIC';
+});
+
+function makeDemo(b){
+  const lines = [
+    ['Third rain this week.', 'Same as the last case.'],
+    ['KRAAAKOOM', 'Something big just landed.'],
+    ['I\'m in.', 'Their firewall is pure 1987.'],
+    ['Run.', 'We were never here.'],
+    ['Signal lost.', 'Hold the line.'],
+    ['Dawn.', 'The city never sleeps.']
+  ];
+  return { panels: Array.from({length:b.panels}, (_,i)=>({
+    image:null, grad:demoColors[i%6], caption:lines[i%6][0], dialogue:lines[i%6][1]
+  })) };
+}
+
+function esc(s){return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+function render(panels, demo){
+  const html = panels.map(p => {
+    const bg = p.image ? `<img src="${esc(p.image)}" alt="" crossorigin="anonymous">`
+      : `<div style="position:absolute;inset:0;background:linear-gradient(${150+Math.random()*60|0}deg,${p.grad.join(',')})"></div>`;
+    return `<div class="p">${bg}<span class="cap">${esc(p.caption)}</span><div class="line" contenteditable="true" spellcheck="false">${esc(p.dialogue)}</div></div>`;
+  }).join('');
+  out.className = 'ready';
+  out.innerHTML = `<div class="page" id="page">${html}</div>
+    <div class="actions">
+      <button class="btn main" id="dl" type="button">DOWNLOAD PNG</button>
+      <button class="btn" id="again" type="button">START OVER</button>
+    </div>
+    <p class="note" style="text-align:center">${demo ? 'Demo mode: connect the generator in API_URL to get AI-drawn panels. ' : ''}Click any speech bubble to edit its text.</p>`;
+  $('#again').onclick = () => { $('#premise').focus(); window.scrollTo({top:$('#studio').offsetTop,behavior:'smooth'}); };
+  $('#dl').onclick = () => download(panels);
+}
+
+/* Draw the finished page to a canvas and save it as a PNG. */
+async function download(panels){
+  const els = [...document.querySelectorAll('#page .p')];
+  const W = 1200, H = 600, pad = 20;
+  const c = document.createElement('canvas');
+  c.width = W + pad*2; c.height = els.length*(H+pad) + pad;
+  const x = c.getContext('2d');
+  x.fillStyle = '#fff'; x.fillRect(0,0,c.width,c.height);
+  for (let i=0;i<els.length;i++){
+    const y = pad + i*(H+pad), p = panels[i];
+    if (p.image) {
+      try { const im = await loadImg(p.image); x.drawImage(im,pad,y,W,H); } catch { x.fillStyle='#14122b'; x.fillRect(pad,y,W,H); }
+    } else {
+      const g = x.createLinearGradient(pad,y,pad+W,y+H);
+      p.grad.forEach((col,k)=>g.addColorStop(k/(p.grad.length-1),col));
+      x.fillStyle = g; x.fillRect(pad,y,W,H);
+    }
+    x.lineWidth = 6; x.strokeStyle = '#000'; x.strokeRect(pad,y,W,H);
+    x.font = '700 26px monospace'; x.fillStyle = '#ffd23f';
+    const cap = p.caption || ''; const cw = x.measureText(cap).width + 24;
+    x.fillRect(pad+16,y+16,cw,44); x.strokeRect(pad+16,y+16,cw,44);
+    x.fillStyle = '#000'; x.fillText(cap,pad+28,y+47);
+    const text = els[i].querySelector('.line').innerText;
+    x.font = '700 30px sans-serif';
+    const bw = W-60, bx = pad+30, by = y+H-130;
+    x.fillStyle = '#fff'; x.fillRect(bx,by,bw,100); x.strokeRect(bx,by,bw,100);
+    x.fillStyle = '#000'; x.fillText(text.slice(0,70),bx+20,by+60);
+  }
+  const a = document.createElement('a');
+  a.download = 'vergocomic.png'; a.href = c.toDataURL('image/png'); a.click();
+}
+function loadImg(src){return new Promise((res,rej)=>{const i=new Image();i.crossOrigin='anonymous';i.onload=()=>res(i);i.onerror=rej;i.src=src})}
+</script>
+</body>
+</html>
